@@ -15,18 +15,17 @@ using System.Net.Sockets;
 using System.Reflection;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace changeModelClient_Das
 {
     public partial class mainForm : Form
     {
-        public static System.Windows.Forms.Label staConnectMySQL_;
         public static System.Windows.Forms.Label staConnectSIO_;
         //
         private IniFile _iniFile;
         //
-        private MySQL mySql;
         private SocketIO socketIO;
         private Thread _thread_ReadInit;
         private Logger logger;
@@ -40,10 +39,8 @@ namespace changeModelClient_Das
             string exeDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             Directory.SetCurrentDirectory(exeDir);
             //
-            mySql = new MySQL();
             socketIO = new SocketIO();
             // khai báo đèn trạng thái các kết nối
-            staConnectMySQL_ = staConnectMySQL;
             staConnectSIO_ = staConnectSIO;
             logger = new Logger("main");
 
@@ -66,15 +63,21 @@ namespace changeModelClient_Das
 
             RunProgram.startProgram("AutoRunModelChange_DAS.exe");
         }
+        private async void FlashStateLabel(System.Windows.Forms.Label label, System.Drawing.Color color1, System.Drawing.Color color2)
+        {
+            await Task.Delay(500);
+            label.BackColor = label.BackColor == color1 ? color2 : color1;
+        }
 
         private void Thread_ReadInit()  // đa luồng vòng lặp đọc log file
         {
+            Invoke((ThreadStart)delegate   //tránh xung đột thread
+            {
+                textBoxLog.Text += $"Đang khởi tạo dữ liệu\r\n";
+            });
             try
             {
-                Invoke((ThreadStart)delegate   //tránh xung đột thread
-                {
-                    textBoxLog.Text += $"Đang khởi tạo dữ liệu\r\n";
-                });
+                // duyệt qua một lượt các folder nhằm tìm line name
                 DirectoryInfo[] dateFolders = new DirectoryInfo(@"C:\SmartSEED\BACKUP").GetDirectories()
                                                     .Where(d => d.Name.Length == 8)
                                                     .OrderByDescending(d => d.Name)
@@ -96,9 +99,9 @@ namespace changeModelClient_Das
                     {
                         textBoxLog.Text += $"{dateFolder}\r\n";
                     });
-
-                    GetLineNumber_CreateTable(dateFolder);
+                    GetLineName(dateFolder);
                 }
+                //////////////////////////////////////////////////////
             }
             catch (Exception ex)
             {
@@ -117,9 +120,14 @@ namespace changeModelClient_Das
                 textBoxLog.ScrollToCaret();
             }
         }
-        private void GetLineNumber_CreateTable(string dateFolder)
+        /// <summary>
+        /// 1. Lấy dữ liệu line hiện tại
+        /// 2. Tạo bảng máy maoi, paoi, mouter  trong csdl
+        /// </summary>
+        /// <param name="dateFolder">Dữ liệu ngày hiện tại</param>
+        private void GetLineName(string dateFolder)
         {
-            if (General.line == "")
+            if (General.line == "" || General.line == null)
             {
                 string machineGroupFolder;
                 machineGroupFolder = dateFolder + @"\D007"; // Mouter
@@ -134,28 +142,34 @@ namespace changeModelClient_Das
                 {
                     return;
                 }
+                // lấy tên line
                 string[] arrMachineFolder = machineFolders[0].Name.Split('.');
                 General.line = arrMachineFolder[1];   // 202.{24}.4.1 
 
-                CreateTable("maoi");
-                CreateTable("paoi");
-                CreateTable("saoi");
+                // lấy modul lớn nhất
+                int maxModul = 1;
+                for (int i = 0; i < machineFolders.Length; i++)
+                {
+                    arrMachineFolder = machineFolders[i].Name.Split('.');
+                    int modul = Int32.Parse(arrMachineFolder[3]);   // 202.24.4.{1} 
+                    if (modul > maxModul)
+                    {
+                        maxModul = modul;
+                    }
+                }
+                General.indexLastModul = maxModul.ToString();
+                // hiển thị linename lên form
+                Invoke((ThreadStart)delegate   //tránh xung đột thread
+                {
+                    lb_lineName.Text = General.line;
+                });
             }
-        }
-
-        private void CreateTable(string machine)
-        {
-            mySql.queryCmd = "CreateTable";
-            IDictionary<string, object> paramSQL = new Dictionary<string, object>();
-            paramSQL.Add("@table_schema_", "change_model");  // DataBase
-            paramSQL.Add("@table_name_", $"{General.line}line_{machine}");
-            mySql.Query_StoredProcedure(paramSQL);
         }
         private void tmReadNewLog_Tick(object sender, EventArgs e)
         {
             try
             {
-                // update time run chương trình
+                // update time run chương trình -> cho phần mềm autorun detect -> từ đó khởi động lại ứng dụng
                 _iniFile.Write("DATETIME", $"{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}", "AUTORUN");
             }
             catch (Exception ex)
@@ -228,30 +242,27 @@ namespace changeModelClient_Das
             //3. Dừng timer tick, reset lại dữ liệu các máy
             tmReadNewLog.Stop();
             //4. tạo thread và chạy
-            if (mySql.CheckConnected())
+            _thread_ReadInit = new Thread(() =>
             {
-                ///thread
-                _thread_ReadInit = new Thread(() =>
+                try
                 {
-                    try
+                    // 
+                    Thread_ReadInit();
+                }
+                finally
+                {
+                    Invoke((ThreadStart)delegate   //tránh xung đột thread
                     {
-                        Thread_ReadInit();
-                    }
-                    finally
-                    {
-                        Invoke((ThreadStart)delegate   //tránh xung đột thread
-                        {
-                            textBoxLog.Text += $"{DateTime.Now} : Kết thúc thread\r\n";
-                            textBoxLog.Text += $"Khởi tạo dữ liệu thành công\r\n";
-                            btn_reset.BackColor = color;
-                            // tick
-                            tmReadNewLog.Start();
-                        });
-                    }
-                });
-                _thread_ReadInit.IsBackground = true;
-                _thread_ReadInit.Start();
-            }
+                        textBoxLog.Text += $"{DateTime.Now} : Kết thúc thread\r\n";
+                        textBoxLog.Text += $"Khởi tạo dữ liệu thành công\r\n";
+                        btn_reset.BackColor = color;
+                        // tick
+                        tmReadNewLog.Start();
+                    });
+                }
+            });
+            _thread_ReadInit.IsBackground = true;
+            _thread_ReadInit.Start();
         }
     }
 }

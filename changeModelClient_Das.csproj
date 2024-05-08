@@ -8,7 +8,7 @@
     <OutputType>WinExe</OutputType>
     <RootNamespace>changeModelClient_Das</RootNamespace>
     <AssemblyName>changeModelClient_Das</AssemblyName>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
     <TargetFrameworkProfile />
@@ -18,7 +18,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>..\..\..\..\zipped\tailieu\TaiLieuPhanMem\C#_Project\changeModelClient_Das%28only%29\bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -124,8 +124,8 @@
     <Compile Include="mainForm.Designer.cs">
       <DependentUpon>mainForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="ModulMouter.cs" />
     <Compile Include="modul\General.cs" />
-    <Compile Include="MySQL.cs" />
     <Compile Include="passwordForm.cs">
       <SubType>Form</SubType>
     </Compile>

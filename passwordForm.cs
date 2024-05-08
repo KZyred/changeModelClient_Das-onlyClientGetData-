@@ -22,7 +22,7 @@ namespace changeModelClient_Das
         {
             if (e.KeyCode == Keys.Escape) txt_Password.Text = string.Empty;
             if (e.KeyCode != Keys.Enter) return;
-            if (txt_Password.Text.Trim() == "KZ")
+            if (txt_Password.Text.Trim() == "1")
             {
                 mainForm.lockApp = true;
                 this.Close();

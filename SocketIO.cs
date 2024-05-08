@@ -52,22 +52,25 @@ namespace changeModelClient_Das
             //// nhận dữ liệu từ topic "hi"
             _mainSocket.On("check_periods", (data) =>
             {
-                Console.WriteLine(data.ToString());
+                //Console.WriteLine(data.ToString());
                 JObject joResponse = JObject.Parse(data.ToString());
                 JArray array = (JArray)joResponse["data"];
                 // 1. check line, ngày, khoảng thời gian
                 for (int i = 0; i < array.Count; i++)
                 {
+                    Console.WriteLine(array[i].ToString());
+                    // kiểm tra xem dữ liệu line nhận từ server có trùng với line hiện tại của máy không?
                     if (array[i]["line"].ToString().ToString().Trim() == General.line.ToString().Trim())
                     {
                         string[] timeSub = array[i]["chung_time"].ToString().Replace('h', ' ').Split('-');
-                        DateTime startTime = DateTime.ParseExact($"{DateTime.Now.ToString("yyyy-MM-dd")} {timeSub[0].Trim()}:00", "yyyy-MM-dd H:mm", CultureInfo.InvariantCulture);
-                        DateTime endTime = DateTime.ParseExact($"{DateTime.Now.ToString("yyyy-MM-dd")} {timeSub[1].Trim()}:00", "yyyy-MM-dd H:mm", CultureInfo.InvariantCulture);
+                        DateTime startTime = DateTime.ParseExact($"{DateTime.Parse(array[i]["date_time"].ToString()).ToString("yyyy-MM-dd")} {timeSub[0].Trim()}:00", "yyyy-MM-dd H:mm", CultureInfo.InvariantCulture);
+                        DateTime endTime = DateTime.ParseExact($"{DateTime.Parse(array[i]["date_time"].ToString()).ToString("yyyy-MM-dd")} {timeSub[1].Trim()}:00", "yyyy-MM-dd H:mm", CultureInfo.InvariantCulture);
                         string dateTime = DateTime.Parse(array[i]["date_time"].ToString()).ToString("yyyyMMdd");
                         string id = array[i]["id"].ToString();
 
                         // 2. list ngày + khoảng thời gian -> mang đi đếm
                         string pathProduct = $@"C:\SmartSEED\BACKUP\{dateTime}\D007\202.{General.line}.4.{General.indexLastModul}";
+
                         var sl = new List<SanLuongModel>();
                         sl.Add(ModulMouter.SanLuongBotTopPeriod(pathProduct, startTime, endTime, "_1_", id));
                         sl.Add(ModulMouter.SanLuongBotTopPeriod(pathProduct, startTime, endTime, "_2_", id));
@@ -76,7 +79,6 @@ namespace changeModelClient_Das
                     }
                 }
             });
-
         }
         /// <summary>
         /// kết nối ban đầu -> máy chủ gửi dữ liệu kết nối lần đầu tới socket.io server
@@ -107,7 +109,7 @@ namespace changeModelClient_Das
         {
             // get IP
             string hostName = Dns.GetHostName(); // Retrive the Name of HOST     
-            return Dns.GetHostByName(hostName).AddressList[0].ToString() + " " + General.line.ToString().Trim();
+            return Dns.GetHostByName(hostName).AddressList[0].ToString() + ";" + General.line.ToString().Trim();
         }
         /// <summary>
         /// khởi tạo lần đầu -> lấy dữ liệu từ socket.io

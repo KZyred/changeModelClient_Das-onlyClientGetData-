@@ -36,9 +36,8 @@ namespace changeModelClient_Das
             this.tmReadNewLog = new System.Windows.Forms.Timer(this.components);
             this.notifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
             this.staConnectSIO = new System.Windows.Forms.Label();
-            this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
-            this.staConnectMySQL = new System.Windows.Forms.Label();
+            this.lb_lineName = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // textBoxLog
@@ -82,46 +81,36 @@ namespace changeModelClient_Das
             // 
             this.staConnectSIO.BackColor = System.Drawing.SystemColors.MenuHighlight;
             this.staConnectSIO.ForeColor = System.Drawing.Color.Transparent;
-            this.staConnectSIO.Location = new System.Drawing.Point(268, 3);
+            this.staConnectSIO.Location = new System.Drawing.Point(184, 1);
             this.staConnectSIO.Name = "staConnectSIO";
             this.staConnectSIO.Size = new System.Drawing.Size(10, 23);
             this.staConnectSIO.TabIndex = 6;
             // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(131, 7);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(48, 13);
-            this.label1.TabIndex = 7;
-            this.label1.Text = "MySQL :";
-            // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(215, 7);
+            this.label2.Location = new System.Drawing.Point(131, 7);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(47, 13);
             this.label2.TabIndex = 8;
             this.label2.Text = "Socket :";
             // 
-            // staConnectMySQL
+            // lb_lineName
             // 
-            this.staConnectMySQL.BackColor = System.Drawing.SystemColors.MenuHighlight;
-            this.staConnectMySQL.ForeColor = System.Drawing.Color.Transparent;
-            this.staConnectMySQL.Location = new System.Drawing.Point(185, 3);
-            this.staConnectMySQL.Name = "staConnectMySQL";
-            this.staConnectMySQL.Size = new System.Drawing.Size(10, 23);
-            this.staConnectMySQL.TabIndex = 9;
+            this.lb_lineName.AutoSize = true;
+            this.lb_lineName.Location = new System.Drawing.Point(200, 7);
+            this.lb_lineName.Name = "lb_lineName";
+            this.lb_lineName.Size = new System.Drawing.Size(11, 13);
+            this.lb_lineName.TabIndex = 10;
+            this.lb_lineName.Text = "*";
             // 
             // mainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(345, 238);
-            this.Controls.Add(this.staConnectMySQL);
+            this.Controls.Add(this.lb_lineName);
             this.Controls.Add(this.label2);
-            this.Controls.Add(this.label1);
             this.Controls.Add(this.staConnectSIO);
             this.Controls.Add(this.btn_reset);
             this.Controls.Add(this.textBoxLog);
@@ -144,9 +133,8 @@ namespace changeModelClient_Das
         private System.Windows.Forms.Timer tmReadNewLog;
         private System.Windows.Forms.NotifyIcon notifyIcon;
         private System.Windows.Forms.Label staConnectSIO;
-        private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.Label staConnectMySQL;
+        private System.Windows.Forms.Label lb_lineName;
     }
 }
 
